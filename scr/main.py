@@ -1,9 +1,12 @@
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+from flask import Flask, request
 
 # Replace 'YOUR_API_TOKEN' with your actual bot token
 API_TOKEN = os.getenv("TOKEN")
+
+app = Flask(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     welcome_message = (
@@ -59,12 +62,12 @@ async def java(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(java_message)
 
 async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    csharp_message = (
+    ai_message = (
         "Learn AI:\n"
-        "AI is a Artificial Intelligence. Check out our AI tutorials here:\n"
+        "AI is Artificial Intelligence. Check out our AI tutorials here:\n"
         "https://youtu.be/gqN4O8LWNKc?si=1-cYWwxUf1yHnk_J\n"
     )
-    await update.message.reply_text(csharp_message)
+    await update.message.reply_text(ai_message)
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -75,10 +78,18 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     elif query.data == "java":
         await query.edit_message_text(text="Learn Java:\nJava is a powerful programming language. Check out our Java tutorials here:\nhttps://www.java.com/en/")
     elif query.data == "ai":
-        await query.edit_message_text(text="AI is a Artificial Intelligence. Check out our AI tutorials here:\nhttps://youtu.be/gqN4O8LWNKc?si=1-cYWwxUf1yHnk_J")
-        await query.edit_message_text(text="Contact us:\nEmail: jacobasuqo199@gmail.com \nPhone: +2349121368136\nWebsite: https://africa.pycon.org/2024/speakers/M0Gg40v/")
+        await query.edit_message_text(text="Learn AI:\nAI is Artificial Intelligence. Check out our AI tutorials here:\nhttps://youtu.be/gqN4O8LWNKc?si=1-cYWwxUf1yHnk_J")
+    elif query.data == "contact":
+        await query.edit_message_text(text="Contact us:\nEmail: jacobasuquo199@gmail.com\nPhone: +2349121368136\nWebsite: https://africa.pycon.org/2024/speakers/M0Gg40v/")
+
+@app.route('/webhook', methods=['POST'])
+async def webhook():
+    update = Update.de_json(request.get_json(force=True), application.bot)
+    await application.process_update(update)
+    return 'ok', 200
 
 def main() -> None:
+    global application
     application = ApplicationBuilder().token(API_TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
@@ -89,7 +100,7 @@ def main() -> None:
     application.add_handler(CommandHandler("ai", ai))
     application.add_handler(CallbackQueryHandler(button))
 
-    application.run_polling()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
-if __name__ == '__main__':
-    main()
+
