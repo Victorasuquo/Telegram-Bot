@@ -81,6 +81,10 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await query.edit_message_text(text="Learn AI:\nAI is Artificial Intelligence. Check out our AI tutorials here:\nhttps://youtu.be/gqN4O8LWNKc?si=1-cYWwxUf1yHnk_J")
     elif query.data == "contact":
         await query.edit_message_text(text="Contact us:\nEmail: jacobasuquo199@gmail.com\nPhone: +2349121368136\nWebsite: https://africa.pycon.org/2024/speakers/M0Gg40v/")
+@app.route('/')
+def home():
+    return "Welcome to Marvel Tutorials Hub!", 200
+
 
 @app.route('/webhook', methods=['POST'])
 async def webhook():
