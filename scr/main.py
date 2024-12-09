@@ -1,12 +1,21 @@
 import os
+import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 # Replace 'YOUR_API_TOKEN' with your actual bot token
 API_TOKEN = os.getenv("TOKEN")
 
 app = Flask(__name__)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@app.route('/')
+def home():
+    return "Welcome to Marvel Tutorials Hub!", 200
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     welcome_message = (
@@ -81,16 +90,18 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await query.edit_message_text(text="Learn AI:\nAI is Artificial Intelligence. Check out our AI tutorials here:\nhttps://youtu.be/gqN4O8LWNKc?si=1-cYWwxUf1yHnk_J")
     elif query.data == "contact":
         await query.edit_message_text(text="Contact us:\nEmail: jacobasuquo199@gmail.com\nPhone: +2349121368136\nWebsite: https://africa.pycon.org/2024/speakers/M0Gg40v/")
-@app.route('/')
-def home():
-    return "Welcome to Marvel Tutorials Hub!", 200
-
 
 @app.route('/webhook', methods=['POST'])
 async def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    await application.process_update(update)
-    return 'ok', 200
+    logger.info("Received webhook update")
+    try:
+        update = Update.de_json(request.get_json(force=True), application.bot)
+        await application.initialize()
+        await application.process_update(update)
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        logger.error(f"Error processing webhook update: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 def main() -> None:
     global application
@@ -106,7 +117,6 @@ def main() -> None:
 
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-
 
 if __name__ == '__main__':
     main()
