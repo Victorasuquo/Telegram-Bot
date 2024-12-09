@@ -5,7 +5,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandle
 from flask import Flask, request, jsonify
 
 # Replace 'YOUR_API_TOKEN' with your actual bot token
-API_TOKEN = "7887315298:AAGUPN-AYo1MusWR7luWQ804VxEvMFvKbyQ"
+API_TOKEN = os.getenv("TOKEN")
 
 app = Flask(__name__)
 
@@ -115,7 +115,7 @@ def main() -> None:
     application.add_handler(CommandHandler("ai", ai))
     application.add_handler(CallbackQueryHandler(button))
 
-    port = int(os.environ.get('PORT', 10000))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
